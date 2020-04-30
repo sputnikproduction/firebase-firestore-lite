@@ -19,7 +19,7 @@ type FilterOption = [
 	/** Property name */
 	string,
 	/** Operator */
-	'<' | '<=' | 'LESS_THAN_OR_EQUAL' | '>' | '>=' | '==' | 'contains',
+	'<' | '<=' | 'LESS_THAN_OR_EQUAL' | '>' | '>=' | '==' | 'in' | 'contains',
 	/** The value to compare against */
 	any
 ];
@@ -63,6 +63,7 @@ const operators = {
 	'>': 'GREATER_THAN',
 	'>=': 'GREATER_THAN_OR_EQUAL',
 	'==': 'EQUAL',
+	'in': 'IN',
 	contains: 'ARRAY_CONTAINS'
 };
 
