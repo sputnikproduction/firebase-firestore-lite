@@ -150,15 +150,24 @@ export default class Reference {
 		if (this.isCollection) throw Error("Can't update a collection");
 
 		const doc = this.handleTransforms(obj, true);
+		const params: any = {};
 
 		if (doc instanceof Promise) return await doc;
-		if (!existsOptional) (doc as any).currentDocument = { exists: true };
+		if (!existsOptional) params.currentDocument = { exists: true };
+
+		const queryObject = objectToQuery(params);
 
 		return new Document(
-			await this.db.fetch(this.endpoint, {
-				method: 'PATCH',
-				body: JSON.stringify(doc)
-			}),
+			await this.db.fetch(
+				this.endpoint +
+					queryObject +
+					(queryObject.length > 0 ? '&' : '?') +
+					maskFromObject(obj),
+				{
+					method: 'PATCH',
+					body: JSON.stringify(doc)
+				}
+			),
 			this.db
 		);
 	}
