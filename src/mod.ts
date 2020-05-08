@@ -4,12 +4,16 @@ import { isDocPath, isDocReference } from './utils';
 import Transaction from './Transaction';
 
 async function handleApiResponse(res) {
-	if (!res.ok) {
-		const data = await res.json();
-		throw Array.isArray(data) ? data : Object.assign(new Error(), data.error);
-	}
+	try {
+		if (!res.ok) {
+			const data = await res.json();
+			throw Array.isArray(data) ? data : Object.assign(new Error(), data.error);
+		}
 
-	return res.json();
+		return res.json();
+	} catch (e) {
+		console.error(e);
+	}
 }
 
 interface Auth {

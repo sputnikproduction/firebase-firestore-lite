@@ -53,11 +53,24 @@ export function objectToQuery(obj = {}): string {
 		if (obj[prop] === undefined) continue; // Skip over undefined props.
 
 		// If it is an array then we should encode each value in separate, and then join.
-		const encodedValue = Array.isArray(obj[prop])
-			? obj[prop].map(val => encodeURIComponent(val)).join()
-			: encodeURIComponent(obj[prop]);
 
-		props.push(`${prop}=${encodedValue}`);
+		if (typeof obj[prop] === 'object') {
+			Object.entries(obj[prop]).forEach(([key, value]: any[]) => {
+				if (value === undefined) return;
+
+				const encodedValue = Array.isArray(value)
+					? value.map(val => encodeURIComponent(val)).join()
+					: encodeURIComponent(value);
+
+				props.push(`${prop}.${key}=${encodedValue}`);
+			});
+		} else {
+			const encodedValue = Array.isArray(obj[prop])
+				? obj[prop].map(val => encodeURIComponent(val)).join()
+				: encodeURIComponent(obj[prop]);
+
+			props.push(`${prop}=${encodedValue}`);
+		}
 	}
 
 	return props.length === 0 ? '' : `?${props.join('&')}`;
@@ -74,8 +87,13 @@ export function getKeyPaths(object: object, parentPath?: string): string[] {
 		const keyPath = parentPath ? `${parentPath}.${key}` : key;
 
 		if (object[key] instanceof Transform) continue;
+		if (object[key] instanceof Reference) mask.push(keyPath);
 
-		if (typeof object[key] === 'object' && !Array.isArray(object[key])) {
+		if (
+			typeof object[key] === 'object' &&
+			object[key] !== null &&
+			!Array.isArray(object[key])
+		) {
 			mask = mask.concat(getKeyPaths(object[key], keyPath));
 			continue;
 		}

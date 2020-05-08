@@ -61,4 +61,8 @@ export class Document {
 		Object.defineProperty(this, '__meta__', { value: meta });
 		Object.assign(this, decode(rawDoc, db));
 	}
+
+	getMeta(key: string) {
+		return this.__meta__[key] ?? null;
+	}
 }

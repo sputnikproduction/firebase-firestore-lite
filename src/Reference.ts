@@ -32,7 +32,7 @@ export default class Reference {
 		this.id = path.split('/').pop();
 		this.path = path;
 		this.name = `${db.rootPath}/${path}`;
-		this.endpoint = `${db.endpoint}/${path}`;
+		this.endpoint = `${db.endpoint}/${path.replace('+', '%2B')}`;
 		this.isRoot = path === '';
 	}
 
@@ -73,6 +73,9 @@ export default class Reference {
 	 */
 	async get(options?: object) {
 		const data = await this.db.fetch(this.endpoint + objectToQuery(options));
+
+		if (!data) return null;
+
 		return this.isCollection
 			? new List(data, this, options)
 			: new Document(data, this.db);
@@ -147,15 +150,24 @@ export default class Reference {
 		if (this.isCollection) throw Error("Can't update a collection");
 
 		const doc = this.handleTransforms(obj, true);
+		const params: any = {};
 
 		if (doc instanceof Promise) return await doc;
-		if (!existsOptional) (doc as any).currentDocument = { exists: true };
+		if (!existsOptional) params.currentDocument = { exists: true };
+
+		const queryObject = objectToQuery(params);
 
 		return new Document(
-			await this.db.fetch(this.endpoint + maskFromObject(obj), {
-				method: 'PATCH',
-				body: JSON.stringify(doc)
-			}),
+			await this.db.fetch(
+				this.endpoint +
+					queryObject +
+					(queryObject.length > 0 ? '&' : '?') +
+					maskFromObject(obj),
+				{
+					method: 'PATCH',
+					body: JSON.stringify(doc)
+				}
+			),
 			this.db
 		);
 	}
