@@ -63,7 +63,7 @@ const operators = {
 	'>': 'GREATER_THAN',
 	'>=': 'GREATER_THAN_OR_EQUAL',
 	'==': 'EQUAL',
-	'in': 'IN',
+	in: 'IN',
 	contains: 'ARRAY_CONTAINS'
 };
 
@@ -315,7 +315,15 @@ export default class Query {
 				method: 'POST',
 				body: JSON.stringify(this)
 			})
-		).map(result => new Document(result.document, this.db));
+		)
+			.map(result => {
+				if (!result.document) {
+					return null;
+				}
+
+				return new Document(result.document, this.db);
+			})
+			.filter(el => el);
 	}
 
 	toJSON() {
