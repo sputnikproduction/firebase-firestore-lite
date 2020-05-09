@@ -97,6 +97,8 @@ export default class Reference {
 		const transforms = [];
 		const doc = encode(obj, transforms);
 
+		console.log(doc);
+
 		if (transforms.length === 0) return doc;
 
 		if (this.isCollection && transforms.length)

@@ -87,11 +87,12 @@ export function getKeyPaths(object: object, parentPath?: string): string[] {
 		const keyPath = parentPath ? `${parentPath}.${key}` : key;
 
 		if (object[key] instanceof Transform) continue;
-		if (object[key] instanceof Reference) mask.push(keyPath);
 
 		if (
 			typeof object[key] === 'object' &&
 			object[key] !== null &&
+			!(object[key] instanceof Reference) &&
+			!(object[key] instanceof Date) &&
 			!Array.isArray(object[key])
 		) {
 			mask = mask.concat(getKeyPaths(object[key], keyPath));
